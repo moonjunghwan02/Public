@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도서 입력 프로그램</title>
+    <style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(45deg, #A0D8FF, #B2E1F6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #333;
+    overflow: auto; /* 전체 페이지에 스크롤 추가 */
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 50px auto;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    max-height: 90vh; /* 컨테이너 높이 제한 */
+    overflow-y: auto; /* 세로 스크롤 추가 */
+}
+
+.book-container, .completed-container, .progress-container {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    max-height: 300px; /* 각 컨테이너 높이 제한 */
+    overflow-y: auto; /* 세로 스크롤 추가 */
+}
+
+#book-list, #completed-list {
+    list-style-type: none;
+    padding: 15px;
+    margin: 0;
+    max-height: 250px; /* 목록의 높이 제한 */
+    overflow-y: auto; /* 목록에 세로 스크롤 추가 */
+}
+
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #3B8C9B;
+            margin: 10px 0;
+        }
+
+        .book-input {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .book-input input {
+            width: 70%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #A0D8FF;
+            margin-right: 10px;
+        }
+
+        .book-input button {
+            padding: 10px 20px;
+            border: 2px solid #A0D8FF;
+            background-color: white;
+            color: #A0D8FF;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .book-input button:hover {
+            background-color: #A0D8FF;
+            color: white;
+        }
+
+        .book-container, .completed-container, .progress-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #book-list, #completed-list {
+            list-style-type: none;
+            padding: 15px;
+            margin: 0;
+        }
+
+        .book-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .book-item input[type="text"] {
+            flex-grow: 1;
+            margin-right: 10px;
+            border-radius: 10px;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .book-item button {
+            border: 2px solid #A0D8FF;
+            padding: 5px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-left: 5px;
+            background-color: white;
+            color: #A0D8FF;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .book-item button:hover {
+            background-color: #A0D8FF;
+            color: white;
+        }
+
+        .move-btn {
+            font-size: 16px;
+            cursor: grab;
+            padding: 5px;
+        }
+
+        progress {
+            width: 100%;
+            height: 20px;
+            border-radius: 10px;
+            border: 2px solid #B2E1F6;
+            background-color: transparent;
+        }
+
+        progress::-webkit-progress-bar {
+            background-color: transparent;
+            border-radius: 10px;
+        }
+
+        progress::-webkit-progress-value {
+            background-color: #1E90FF;
+            border-radius: 10px;
+        }
+
+        #progress-text {
+            font-size: 14px;
+            color: #6C9FB3;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <h1>목표 설정하기</h1>
+    <div class="book-input">
+        <input type="text" id="new-book" placeholder="도서명을 입력하세요">
+        <input type="number" id="total-pages" placeholder="전체 페이지 수" min="1">
+        <input type="number" id="read-pages" placeholder="읽은 페이지 수" min="0" value="0">
+        <button id="add-book-btn">추가</button>
+    </div>
+
+    <div class="book-container">
+        <h2>도서 목록</h2>
+        <ul id="book-list"></ul>
+    </div>
+    <div class="completed-container">
+        <h2>읽은 도서</h2>
+        <ul id="completed-list"></ul>
+    </div>
+    <div class="progress-container">
+        <h2>목표 진행 상황</h2>
+        <p id="progress-text">총 도서 진행 상황을 나타내는 부분입니다.</p>
+        <progress id="progress" value="0" max="100"></progress>
+    </div>
+<div style="text-align: center; margin-top: 20px;">
+            <button onclick="location.href='archive.html'" style="padding: 10px 20px; font-size: 16px; border-radius: 10px; border: 2px solid #A0D8FF; background-color: white; color: #A0D8FF; cursor: pointer;">
+                보관함 보기
+            </button>
+        </div>
+    </div>
+</div>
+    <script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const bookList = document.getElementById('book-list');
+    const completedList = document.getElementById('completed-list');
+    const addBookBtn = document.getElementById('add-book-btn');
+    const newBookInput = document.getElementById('new-book');
+    const newTotalPages = document.getElementById('total-pages');
+    const newReadPages = document.getElementById('read-pages');
+    const progressBar = document.getElementById('progress');
+    const progressText = document.getElementById('progress-text');
+    let books = [];
+    let completedBooks = [];
+
+    // 서버에서 도서 목록을 불러오는 함수
+    const fetchBooks = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/reading-goals');
+            if (response.ok) {
+                const data = await response.json();
+                books = data.filter(book => book.bookName && !book.isRead); // isRead가 false인 책만
+                completedBooks = data.filter(book => book.isRead); // isRead가 true인 책만
+                renderBooks(); // 도서 목록 렌더링
+                renderCompletedBooks(); // 읽은 도서 목록 렌더링
+                updateProgress(); // 진행 상황 업데이트
+            } else {
+                console.error('도서 목록을 불러오는 데 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('서버 요청에 오류가 발생했습니다:', error);
+        }
+    };
+
+    const addBook = async (bookName, totalPages, readPages) => {
+        const book = { 
+            bookName: bookName, 
+            totalPages: parseInt(totalPages, 10), 
+            readPages: parseInt(readPages, 10) 
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/api/reading-goals/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(book),
+            });
+
+            if (response.ok) {
+                console.log('도서가 성공적으로 추가되었습니다.');
+                const data = await response.json();
+                books = data.filter(book => !book.isRead); // 최신 데이터 갱신
+                renderBooks(); // 도서 목록 렌더링
+                updateProgress(); // 진행 상황 업데이트
+            } else {
+                console.error('도서 추가에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('서버 요청에 오류가 발생했습니다:', error);
+        }
+    };
+
+    const updateBookProgress = async (goalId, readPages) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/reading-goals/${goalId}/update-progress`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ readPages }),
+            });
+
+            if (response.ok) {
+                console.log('읽은 페이지 수가 성공적으로 업데이트되었습니다.');
+            } else {
+                console.error('읽은 페이지 수 업데이트에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('서버 요청에 오류가 발생했습니다:', error);
+        }
+    };
+
+    const completeBook = async (index) => {
+        const book = books[index];
+        if (!book) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/reading-goals/${book.goalId}/mark-as-read`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                console.log('도서가 읽음 처리되었습니다.');
+                book.isRead = true; // 로컬 데이터 업데이트
+                completedBooks.push(book); // 읽은 도서 목록으로 이동
+                books.splice(index, 1); // 원본 도서 목록에서 제거
+                renderBooks(); // 도서 목록 다시 렌더링
+                renderCompletedBooks(); // 읽은 도서 목록 렌더링
+                updateProgress(); // 진행 상황 업데이트
+            } else {
+                console.error('도서를 읽음 처리하는 데 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('서버 요청에 오류가 발생했습니다:', error);
+        }
+    };
+
+    const renderBooks = () => {
+        bookList.innerHTML = ''; // 기존 목록 초기화
+        books.forEach((book, index) => {
+            const li = document.createElement('li');
+            li.className = 'book-item';
+            li.setAttribute('data-index', index);
+
+            // 도서명 (수정 불가)
+            const bookTitle = document.createElement('span');
+            bookTitle.textContent = book.bookName;
+            bookTitle.style.fontWeight = 'bold';
+
+            // 총 페이지 수 (수정 불가)
+            const totalPages = document.createElement('span');
+            totalPages.textContent = `총 페이지: ${book.totalPages || 0}`;
+            totalPages.style.marginLeft = '10px';
+            totalPages.style.color = '#666';
+
+            // 읽은 페이지 수 (수정 가능)
+            const readPagesInput = document.createElement('input');
+            readPagesInput.type = 'number';
+            readPagesInput.value = book.readPages || 0;
+            readPagesInput.style.width = '60px';
+            readPagesInput.style.marginLeft = '10px';
+            readPagesInput.style.borderRadius = '5px';
+            readPagesInput.style.border = '1px solid #ddd';
+            readPagesInput.disabled = true;
+
+            const editBtn = document.createElement('button');
+            editBtn.textContent = '수정';
+            editBtn.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                if (readPagesInput.disabled) {
+                    if (confirm('읽은 페이지 수를 수정하시겠습니까?')) {
+                        readPagesInput.disabled = false;
+                        editBtn.textContent = '저장';
+                    }
+                } else {
+                    const newReadPages = parseInt(readPagesInput.value, 10);
+                    if (isNaN(newReadPages) || newReadPages < 0 || newReadPages > book.totalPages) {
+                        alert('읽은 페이지 수는 0 이상, 총 페이지 수 이하로 입력해주세요.');
+                        return;
+                    }
+                    if (confirm('변경 내용을 저장하시겠습니까?')) {
+                        await updateBookProgress(book.goalId, newReadPages);
+                        readPagesInput.disabled = true;
+                        editBtn.textContent = '수정';
+                        book.readPages = newReadPages; // 로컬 데이터 업데이트
+                        updateProgress(); // 진행 상황 업데이트
+                    }
+                }
+            });
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '삭제';
+            deleteBtn.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                if (confirm('삭제하시겠습니까?')) {
+                    try {
+                        const bookId = books[index].goalId;
+                        const response = await fetch(`http://localhost:8080/api/reading-goals/${bookId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+
+                        if (response.ok) {
+                            console.log('도서가 성공적으로 삭제되었습니다.');
+                            books.splice(index, 1);
+                            renderBooks();
+                            updateProgress();
+                        } else {
+                            console.error('도서 삭제에 실패했습니다.');
+                        }
+                    } catch (error) {
+                        console.error('서버 요청에 오류가 발생했습니다:', error);
+                    }
+                }
+            });
+
+            const completeBtn = document.createElement('button');
+            completeBtn.textContent = '읽음';
+            completeBtn.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                if (confirm('읽은 도서로 처리하시겠습니까?')) {
+                    await completeBook(index);
+                }
+            });
+
+            li.appendChild(bookTitle);
+            li.appendChild(totalPages);
+            li.appendChild(readPagesInput);
+            li.appendChild(editBtn);
+            li.appendChild(completeBtn);
+            li.appendChild(deleteBtn);
+            bookList.appendChild(li);
+        });
+    };
+
+    const moveToArchive = async (index) => {
+                const book = completedBooks[index];
+                if (!book) return;
+
+                try {
+                    const response = await fetch(`http://localhost:8080/api/reading-goals/${book.goalId}/move-to-archive`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (response.ok) {
+                        console.log('도서가 보관함으로 이동되었습니다.');
+                        completedBooks.splice(index, 1); // 읽은 도서 목록에서 제거
+                        renderCompletedBooks(); // 읽은 도서 목록 다시 렌더링
+                    } else {
+                        console.error('도서를 보관함으로 이동하는 데 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('서버 요청에 오류가 발생했습니다:', error);
+                }
+            };
+
+            const renderCompletedBooks = () => {
+                completedList.innerHTML = ''; // 기존 목록 초기화
+                completedBooks.forEach((book, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'book-item';
+
+                    const bookTitle = document.createElement('span');
+                    bookTitle.textContent = book.bookName;
+                    bookTitle.style.fontWeight = 'bold';
+
+                    const totalPages = document.createElement('span');
+                    totalPages.textContent = `총 페이지: ${book.totalPages}`;
+                    totalPages.style.marginLeft = '10px';
+                    totalPages.style.color = '#666';
+
+                    const archiveBtn = document.createElement('button');
+                    archiveBtn.textContent = '보관함으로 이동';
+                    archiveBtn.addEventListener('click', async (event) => {
+                        event.stopPropagation();
+                        if (confirm('이 책을 보관함으로 이동하시겠습니까?')) {
+                            await moveToArchive(index);
+                        }
+                    });
+
+                    li.appendChild(bookTitle);
+                    li.appendChild(totalPages);
+                    li.appendChild(archiveBtn);
+                    completedList.appendChild(li);
+                });
+            };
+
+    const updateProgress = () => {
+        const totalBooks = books.length + completedBooks.length;
+        const completedCount = completedBooks.length;
+
+        if (totalBooks === 0) {
+            progressBar.value = 0;
+            progressBar.max = 100;
+            progressText.textContent = '도서 진행 상황이 없습니다.';
+        } else {
+            progressBar.value = completedCount;
+            progressBar.max = totalBooks;
+            const progressPercent = ((completedCount / totalBooks) * 100).toFixed(2);
+            progressText.textContent = `전체 진행 상황: ${progressPercent}% (${completedCount}/${totalBooks} 권)`;
+        }
+    };
+
+    addBookBtn.addEventListener('click', async () => {
+        const bookName = newBookInput.value.trim();
+        const totalPages = newTotalPages.value;
+        const readPages = newReadPages.value;
+
+        if (!bookName || isNaN(totalPages) || isNaN(readPages) || totalPages < 1 || readPages < 0 || readPages > totalPages) {
+            alert('도서명과 총 페이지, 읽은 페이지 수를 올바르게 입력해주세요.');
+            return;
+        }
+
+        await addBook(bookName, totalPages, readPages);
+
+        // 입력 필드 초기화
+        newBookInput.value = '';
+        newTotalPages.value = '';
+        newReadPages.value = '';
+    });
+
+    await fetchBooks();
+});
+
+        </script>
+        
+        
+</body>
+</html>
